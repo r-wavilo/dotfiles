@@ -1,0 +1,3 @@
+set smartcase
+set ignorecase
+noremap <C-LeftMouse> <Nop>
