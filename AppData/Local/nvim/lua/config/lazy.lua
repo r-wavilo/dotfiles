@@ -21,6 +21,9 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+-- Whitespace color (visual-whitespace.nvim)
+vim.api.nvim_set_hl(0, "VisualNonText", { fg = "#5D5F71", bg = "#24282d"})
+
 -- Setup lazy.nvim
 require("lazy").setup({
   spec = {
@@ -31,8 +34,12 @@ require("lazy").setup({
   -- colorscheme that will be used when installing plugins.
   install = {
      -- colorscheme = { "tokyonight" }
-	 colorscheme = { ""  }
+	 colorscheme = { "material-oceanic"  }
    },
   -- automatically check for plugin updates
   checker = { enabled = false },
+  change_detection = {
+    enabled = false,    -- automatically check for config file changes and reload the ui
+    notify = false, -- get a notification when changes are found
+  },
 })

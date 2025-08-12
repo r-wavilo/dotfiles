@@ -2,13 +2,17 @@
 vim.opt.termguicolors = true
 
 require("config.lazy")
+require("config.wavilo")
 
 vim.cmd[[
 
 set smartcase
 set ignorecase
 noremap <C-LeftMouse> <Nop>
+noremap <LeftMouse> <Nop>
+noremap <RightMouse> <Nop>
 
+" Change vim cwd to current buffer directory
 autocmd BufEnter * silent! lcd %:p:h
 
 function! ToggleReadOnlyBit()
