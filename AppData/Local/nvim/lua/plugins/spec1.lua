@@ -13,7 +13,7 @@ local function GetOnOrOff(booleanValue)
 end
 
 local function WrapErrorAsString(function_to_call, arg1, arg2, ...)
-	local status, result_or_error = pcall(function_to_call, arg1, arg2, ...)
+    local status, result_or_error = pcall(function_to_call, arg1, arg2, ...)
     if not status then
         return "Error: " .. result_or_error
     else
@@ -22,7 +22,6 @@ local function WrapErrorAsString(function_to_call, arg1, arg2, ...)
 end
 
 local function LuaLineComponent_SpcInfo()
-    local o_expandtab
     --local lbr = "";
     --local rbr = "";
     local lbr = "";
@@ -42,7 +41,6 @@ return {
         build = ":TSUpdate",
     },
   
-  
     -- LuaLine
     {
         'nvim-lualine/lualine.nvim',
@@ -54,12 +52,15 @@ return {
             --component_separators = { left = '', right = ''},
             --component_separators = { left = '', right = ''},
             tabline = {
-              lualine_a = {'buffers'},
-              --lualine_b = {'branch'},
-              --lualine_c = {'filename'},
-              lualine_x = {},
-              lualine_y = {},
-              lualine_z = {'tabs'}
+                 lualine_a = {
+                     {'buffers', icons_enabled = false}
+                 },
+                 --lualine_b = {'branch'},
+                 --lualine_c = {'filename'},
+                 lualine_x = {},
+                 lualine_y = {},
+                 lualine_z = {'g:colors_name'},
+                 --lualine_z = {'tabs'}
             },
             sections = {
                 lualine_a = {'mode'},
@@ -83,37 +84,60 @@ return {
   
     -- Icons
     { "nvim-tree/nvim-web-devicons", opts = {} },
-  
-  
+
+
     -- lsp_config
     {
-      'neovim/nvim-lspconfig',
-      config = function() 
-        
-        local nvim_lsp = require('lspconfig')
+        'neovim/nvim-lspconfig',
+        config = function() 
+            local nvim_lsp = require('lspconfig')
 
-        nvim_lsp.denols.setup {
-          on_attach = on_attach,
-          root_dir = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc"),
-        }
+            nvim_lsp.denols.setup {
+                on_attach = on_attach,
+                root_dir = nvim_lsp.util.root_pattern("deno.json", "deno.jsonc"),
+                settings = {
+                    deno = {
+                        enable = true,
+                        suggest = {
+                            imports = {
+                                hosts = {
+                                    ['https://deno.land'] = false,
+                                },
+                            },
+                        },
+                    },
+                },
+            }
 
-        nvim_lsp.ts_ls.setup {
-          on_attach = on_attach,
-          root_dir = nvim_lsp.util.root_pattern("package.json"),
-          single_file_support = false
-        }
-        
-      end
+            nvim_lsp.ts_ls.setup {
+                on_attach = on_attach,
+                root_dir = nvim_lsp.util.root_pattern("package.json"),
+                single_file_support = false
+            }
+        end
     },
   
     -- Telescope
     {
         'nvim-telescope/telescope.nvim',
         tag = '0.1.8',
-        dependencies = { 'nvim-lua/plenary.nvim' }
+        dependencies = { 'nvim-lua/plenary.nvim' },
+        opts = {
+            defaults = {
+                sorting_strategy = "ascending",
+                layout_config = {
+                    horizontal = {
+                        prompt_position = "top",
+                    },
+                    vertical = {
+                        prompt_position = "top",
+                    },
+                },
+            },
+        }
     },
-	
-	-- Which-Key
+    
+    -- Which-Key
     {
         "folke/which-key.nvim",
         event = "VeryLazy",
@@ -139,21 +163,17 @@ return {
         lazy = false,
         priority = 900,
         config = function()
-          
-          local available_colorschemes = vim.fn.getcompletion("", "color")
+
+            local available_colorschemes = vim.fn.getcompletion("", "color")
             local colorschemes = {}
-              for _, colorscheme in ipairs(available_colorschemes) do
+            for _, colorscheme in ipairs(available_colorschemes) do
                 table.insert(colorschemes, colorscheme)
             end
           
-          require("themery").setup({
-            
-            
-            
-            themes = colorschemes,
-            livePreview = true,
-          })
-          
+            require("themery").setup({
+                themes = colorschemes,
+                livePreview = true,
+            })
         end
     },
 
@@ -244,6 +264,9 @@ return {
           },
           on_tab_options = { -- A table of vim options when tabs are detected 
             ["expandtab"] = false,
+            ["tabstop"] = 4, -- If the option value is 'detected', The value is set to the automatically detected indent size.
+            ["softtabstop"] = 4,
+            ["shiftwidth"] = 4,
           },
           on_space_options = { -- A table of vim options when spaces are detected 
             ["expandtab"] = true,
@@ -265,30 +288,29 @@ return {
     config = true,
     event = "ModeChanged *:[vV\22]", -- optionally, lazy load on entering visual mode
     opts = {
-		  enabled = true,
-		  highlight = { link = "Visual", default = true },
-		  match_types = {
-			space = true,
-			tab = true,
-			nbsp = true,
-			lead = false,
-			trail = false,
-		  },
-		  list_chars = {
-			space = "·",
-			tab = "↦",
-			nbsp = "␣",
-			lead = "‹",
-			trail = "›",
-		  },
-		  fileformat_chars = {
-			unix = "↲",
-			mac = "←",
-			dos = "↙",
-		  },
-		  ignore = { filetypes = {}, buftypes = {} },
-	},
+          enabled = true,
+          highlight = { link = "Visual", default = true },
+          match_types = {
+            space = true,
+            tab = true,
+            nbsp = true,
+            lead = false,
+            trail = false,
+          },
+          list_chars = {
+            space = "·",
+            tab = "↦",
+            nbsp = "␣",
+            lead = "‹",
+            trail = "›",
+          },
+          fileformat_chars = {
+            unix = "↲",
+            mac = "←",
+            dos = "↙",
+          },
+          ignore = { filetypes = {}, buftypes = {} },
+    },
   },
-  
   
 }
