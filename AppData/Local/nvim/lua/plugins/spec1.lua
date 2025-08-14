@@ -161,17 +161,21 @@ return {
     {
         "zaldih/themery.nvim",
         lazy = false,
-        priority = 900,
+        priority = 900,  -- after colorschemes are loaded
         config = function()
 
             local available_colorschemes = vim.fn.getcompletion("", "color")
-            local colorschemes = {}
+            local themes = {}
             for _, colorscheme in ipairs(available_colorschemes) do
-                table.insert(colorschemes, colorscheme)
+                local theme = {
+                    name = colorscheme,
+                    colorscheme = colorscheme
+                }
+                table.insert(themes, theme)
             end
           
             require("themery").setup({
-                themes = colorschemes,
+                themes = themes,
                 livePreview = true,
             })
         end
@@ -276,11 +280,23 @@ return {
           },
         }
     },
-  
-  -- Matching word highlight
-  {
-     "RRethy/vim-illuminate"
-  },
+
+    -- Neo-Tree
+    {
+        "nvim-neo-tree/neo-tree.nvim",
+        branch = "v3.x",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "MunifTanjim/nui.nvim",
+            "nvim-tree/nvim-web-devicons", -- optional, but recommended
+        },
+        lazy = false, -- neo-tree will lazily load itself
+    },
+
+    -- Matching word highlight
+    {
+        "RRethy/vim-illuminate"
+    },
   
   -- Show whitespace
   {
