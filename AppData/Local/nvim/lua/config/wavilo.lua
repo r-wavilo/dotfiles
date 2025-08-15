@@ -26,3 +26,8 @@ vim.api.nvim_create_user_command("WaviloSwitchToTabsMode", WaviloSwitchToTabsMod
 vim.keymap.set("n", "<leader>qL", function() require("named-sessions").select() end, {desc="Select session"})
 vim.keymap.set("n", "<leader>ql", function() require("named-sessions").load({ last = true }) end, {desc="Load previous session"})
 vim.keymap.set("n", "<leader>qd", function() require("named-sessions").stop() end, {desc="Stop saving current session"})
+
+--local function WaviloPostColorScheme()
+    --vim.g.colors_name = require('themery').getCurrentTheme().name
+--end
+--vim.api.nvim_create_user_command("WaviloPostColorScheme", WaviloPostColorScheme, { nargs = "*" })

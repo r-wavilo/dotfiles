@@ -12,6 +12,13 @@ local function GetOnOrOff(booleanValue)
     return "off"
 end
 
+local function GetAsNonNilString(stringValue)
+    if stringValue ~= nil then
+        return stringValue
+    end
+    return ""
+end
+
 local function WrapErrorAsString(function_to_call, arg1, arg2, ...)
     local status, result_or_error = pcall(function_to_call, arg1, arg2, ...)
     if not status then
@@ -34,11 +41,62 @@ local function WrappedLuaLineComponent_SpcInfo()
     return WrapErrorAsString(LuaLineComponent_SpcInfo)
 end
 
+local function WaviloTelescopeColorSchemeCR(prompt_bufnr)
+    local selected_colorscheme
+    local selection = require('telescope.actions.state').get_selected_entry()
+    --print(vim.inspect(selection))
+    if (selection ~= nil) then
+        selected_colorscheme = selection[1] -- name of selected item
+        --print("Selected: " .. selected_colorscheme)
+    end
+    local ret = require('telescope.actions').select_default(prompt_bufnr)
+    vim.g.colors_name = selected_colorscheme
+    return ret
+end
+
+local function WaviloLoadConfig()
+    local file_path = vim.fn.stdpath('data') .. "/colormanager.json"
+    if (vim.uv.fs_stat(file_path)) then
+        local file = io.open(file_path, "r")
+        local file_contents = file:read("*a")
+        file:close()
+        local config = vim.json.decode(file_contents)
+        if (config.colorscheme ~= nil) and (config.colorscheme ~= "") then
+            vim.cmd("colorscheme " .. config.colorscheme)
+            vim.g.colors_name = config.colorscheme
+        end
+    end
+end
+
+local function WaviloSaveConfig()
+    local config = {
+        colorscheme = GetAsNonNilString(vim.g.colors_name),
+    }
+    local file_contents = vim.json.encode(config)
+    --print(file_contents)
+    local file_path = vim.fn.stdpath('data') .. "/colormanager.json"
+    local file = io.open(file_path, "w")
+    file:write(file_contents)
+    file:close()
+end
+
 return {
+    -- Wavilo
+    {
+        "wavilo.nvim",
+        dir = vim.fn.stdpath('config') .. "/lua/wavilo.nvim",
+        config = function()
+            vim.api.nvim_create_user_command("WaviloLoadConfig", WaviloLoadConfig, { nargs = "*" })
+            vim.api.nvim_create_user_command("WaviloSaveConfig", WaviloSaveConfig, { nargs = "*" })
+            WaviloLoadConfig()
+        end
+    },
+
     -- TreeSitter
     {
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
+        opts = {},
     },
   
     -- LuaLine
@@ -134,6 +192,19 @@ return {
                     },
                 },
             },
+            pickers = {
+                colorscheme = {
+                    enable_preview = true,
+                    mappings = {
+                        i = {
+                            ["<cr>"] = WaviloTelescopeColorSchemeCR,
+                        },
+                        n = {
+                            ["<cr>"] = WaviloTelescopeColorSchemeCR,
+                        }
+                    }
+                }
+            },
         }
     },
     
@@ -157,30 +228,6 @@ return {
         },
     },
   
-    -- Themery
-    {
-        "zaldih/themery.nvim",
-        lazy = false,
-        priority = 900,  -- after colorschemes are loaded
-        config = function()
-
-            local available_colorschemes = vim.fn.getcompletion("", "color")
-            local themes = {}
-            for _, colorscheme in ipairs(available_colorschemes) do
-                local theme = {
-                    name = colorscheme,
-                    colorscheme = colorscheme
-                }
-                table.insert(themes, theme)
-            end
-          
-            require("themery").setup({
-                themes = themes,
-                livePreview = true,
-            })
-        end
-    },
-
     -- Delimiter highlighting
     {
         "HiPhish/rainbow-delimiters.nvim",
